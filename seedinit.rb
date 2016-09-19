@@ -1,5 +1,7 @@
 Hem.require_version '>= 1.2.0'
 
+option :template_excludes, ['tools/chef/site-cookbooks/project/templates/**.erb']
+
 # Overwrite hem README with project README
 old_readme = 'README.md'
 new_readme = 'README.project.md.erb'

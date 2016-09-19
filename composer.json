@@ -1,6 +1,12 @@
 {
     "require": {
-        "php": ">=5.6.0"
+        "php": ">=5.6.0",
+        "composer/installers": "^1.0.20",
+        "drupal-composer/drupal-scaffold": "^2.0.1",
+        "cweagans/composer-patches": "~1.0",
+        "drupal/core": "~8.0",
+        "drush/drush": "~8.0",
+        "drupal/console": "~1.0@dev"
     },
     "require-dev": {
         "phpspec/phpspec": "~2.0",
@@ -10,6 +16,10 @@
         "behat/mink-goutte-driver": "1.2.*",
         "behat/mink-selenium2-driver": "1.*",
         "sensiolabs/behat-page-object-extension": "2.0.*",
+        "jcalderonzumba/gastonjs": "~1.0.2",
+        "jcalderonzumba/mink-phantomjs-driver": "~0.3.1",
+        "mikey179/vfsStream": "~1.2",
+        "symfony/css-selector": "~2.8",
         "squizlabs/php_codesniffer": "2.*",
         "phpmd/phpmd": "2.*",
         "sebastian/phpcpd": "2.*",
@@ -23,5 +33,41 @@
     "config": {
         "bin-dir": "bin"
     },
-    "autoload": {"psr-0": {"": "src"}}
+    "autoload": {
+        "psr-0": {"": "src"},
+        "classmap": [
+            "scripts/composer/ScriptHandler.php"
+        ]
+    },
+    "repositories": {
+        "drupal": {
+            "type": "composer",
+            "url": "https://packagist.drupal-composer.org"
+        }
+    },
+    "scripts": {
+        "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+        "pre-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "pre-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "post-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "post-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ]
+    },
+    "extra": {
+        "installer-paths": {
+            "web/core": ["type:drupal-core"],
+            "web/libraries/{$name}": ["type:drupal-library"],
+            "web/modules/contrib/{$name}": ["type:drupal-module"],
+            "web/profiles/contrib/{$name}": ["type:drupal-profile"],
+            "web/themes/contrib/{$name}": ["type:drupal-theme"],
+            "drush/contrib/{$name}": ["type:drupal-drush"]
+        }
+    }
 }
