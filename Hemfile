@@ -1,0 +1,21 @@
+
+replace 'tools:composer' do
+  bin_file = File.join(Hem.project_bin_path, "composer.phar")
+  unless File.exists?(bin_file)
+    Hem.ui.success "Getting composer"
+    FileUtils.mkdir_p File.dirname(bin_file)
+    run "cd bin && php -r \"readfile('https://getcomposer.org/installer');\" | php", :realtime => true, :indent => 2
+    run "php bin/composer.phar global require 'hirak/prestissimo:^0.3'", :realtime => true, :indent => 2
+  else
+    Hem.ui.success "Composer already available in bin/composer.phar"
+  end
+  Hem.ui.separator
+end
+
+before 'deps:composer' do
+  run "sudo mv /etc/php.d/xdebug.ini /home/vagrant/"
+end
+
+after 'deps:composer' do
+  run "sudo mv /home/vagrant/xdebug.ini /etc/php.d/"
+end

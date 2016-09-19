@@ -1,0 +1,47 @@
+{
+  "name": "project-web",
+  "chef_type": "role",
+  "json_class": "Chef::Role",
+  "description": "<%= config.name %> web role",
+  "run_list": [
+    "role[project-base]",
+    "role[db-mysql56-client]",
+    "role[php56]",
+    "role[web-nginx]",
+    "recipe[config-driven-helper::capistrano]",
+    "recipe[config-driven-helper::packages-additional]"
+  ],
+  "default_attributes": {
+    "nginx": {
+      "shared_config": {
+        "my-app": {
+          "protocols": ["http", "https"],
+          "capistrano": {
+            "owner": "deploy",
+            "group": "deploy",
+            "shared_folders": {
+              "readable": {
+                "folders": [
+                ]
+              },
+              "writeable": {
+                "owner": "apache",
+                "group": "apache",
+                "folders": [
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "packages-additional": {
+      "git": "install"
+    },
+    "php": {
+      "directives": {
+        "date.timezone": "Europe/London"
+      }
+    }
+  }
+}
