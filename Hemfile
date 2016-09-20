@@ -1,21 +1,51 @@
 
-replace 'tools:composer' do
-  bin_file = File.join(Hem.project_bin_path, "composer.phar")
-  unless File.exists?(bin_file)
-    Hem.ui.success "Getting composer"
-    FileUtils.mkdir_p File.dirname(bin_file)
-    run "cd bin && php -r \"readfile('https://getcomposer.org/installer');\" | php", :realtime => true, :indent => 2
-    run "php bin/composer.phar global require 'hirak/prestissimo:^0.3'", :realtime => true, :indent => 2
-  else
-    Hem.ui.success "Composer already available in bin/composer.phar"
+replace 'deps:composer' do
+  if File.exists? File.join(Hem.project_path, "composer.json")
+    Rake::Task["tools:composer"].invoke
+    Hem.ui.title "Installing composer dependencies"
+    Dir.chdir Hem.project_path do
+      ansi = Hem.ui.supports_color? ? '--ansi' : ''
+      args = [ "php bin/composer.phar install #{ansi} --prefer-dist", { realtime: true, indent: 2 } ]
+      complete = false
+
+      unless maybe(Hem.project_config.tasks.deps.composer.disable_host_run)
+        check = Hem::Lib::HostCheck.check(:filter => /php_present/)
+
+        if check[:php_present] == :ok
+          begin
+            shell *args
+            complete = true
+          rescue Hem::ExternalCommandError
+            Hem.ui.warning "Installing composer dependencies locally failed!"
+          end
+        end
+      end
+
+      if !complete
+
+        config = "/home/vagrant/.config/composer/composer.json"
+
+        cmd  = "sudo mv /etc/php.d/xdebug.ini /home/vagrant\n"
+        cmd += "if [ ! -f #{config} ] || ! grep -q 'prestissimo' '#{config}' ; then\n"
+        cmd += "  php bin/composer.phar global require 'hirak/prestissimo:^0.3'\n"
+        cmd += "fi\n"
+        cmd += "php bin/composer.phar install #{ansi} --prefer-dist\n"
+        cmd += "sudo mv /home/vagrant/xdebug.ini /etc/php.d/"
+
+        args = [ cmd, { realtime: true, indent: 2 } ]
+
+        run *args
+
+      end
+
+      Hem.ui.success "Composer dependencies installed"
+    end
+
+    Hem.ui.separator
   end
-  Hem.ui.separator
 end
 
-before 'deps:composer' do
-  run "sudo mv /etc/php.d/xdebug.ini /home/vagrant/"
-end
-
-after 'deps:composer' do
-  run "sudo mv /home/vagrant/xdebug.ini /etc/php.d/"
+after 'vm:up' do
+  Hem.ui.title "Drupal Setup and Cache Clear"
+  run "drupal init && drupal cache:rebuild all", { realtime: true, indent: 2 }
 end
