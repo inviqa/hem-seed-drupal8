@@ -1,7 +1,13 @@
 source "https://rubygems.org"
 
+group :docker do
+  gem 'rake-tasks-docker', '~> 0.2.0'
+  gem 'rake-tasks-docker-setup', '~> 0.1.0'
+  gem 'rake-tasks-docker-sync', '~> 1.0.0'
+end
+
 group :chef do
-  gem "berkshelf", "~> 4.3"
+  gem "berkshelf", "~> 5.6"
   gem "chef", "~> 12.10.24"
   gem "knife-solo", "~> 0.6.0"
   gem "knife-solo_data_bag", "~> 1.1.0"
@@ -13,7 +19,7 @@ group :chef_development do
   gem "test-kitchen", "~> 1.8"
   gem "kitchen-vagrant", "~> 0.20.0"
   gem "kitchen-docker", "~> 2.3.0"
-  gem "rubocop", "~> 0.40.0"
+  gem "rubocop", "~> 0.49.0"
 end
 
 group :deploy do

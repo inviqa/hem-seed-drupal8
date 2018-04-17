@@ -2,11 +2,15 @@ Hem.require_version '>= 1.2.0'
 
 option :template_excludes, ['tools/chef/site-cookbooks/project/templates/**.erb']
 
+# Overwrite .dev hostnames with .test
+config.hostname = "#{config.name}.test"
+
 # Overwrite hem README with project README
 old_readme = 'README.md'
 new_readme = 'README.project.md.erb'
 File.delete old_readme
 FileUtils.mv new_readme, "#{old_readme}.erb"
+File.delete 'Jenkinsfile'
 
 # MySQL local VM MySQL passwords
 password = '984C42CF342f7j6' # password still is set in the basebox
